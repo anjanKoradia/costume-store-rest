@@ -2,3 +2,9 @@ venv
 
 /costumestore/costumestore/.env
 /costumestore/costumestore/__pycache__
+
+/costumestore/authentication/migrations
+/costumestore/authentication/__pycache__
+
+/costumestore/common/migrations
+/costumestore/common/__pycache__
