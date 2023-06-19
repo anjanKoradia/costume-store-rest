@@ -1,11 +1,13 @@
 import uuid
 from django.db import models
 
-USER_ROLE_CHOICES = (
-    ("customer", "customer"),
-    ("vendor", "vendor"),
-    ("admin", "admin")
+USER_ROLE_CHOICES = (("customer", "customer"), ("vendor", "vendor"), ("admin", "admin"))
+
+ADDRESS_TYPE = (
+    ("billing", "billing"),
+    ("default", "default"),
 )
+
 
 # Create your models here.
 class BaseModel(models.Model):
@@ -14,3 +16,6 @@ class BaseModel(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
