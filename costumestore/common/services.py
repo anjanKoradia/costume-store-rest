@@ -18,9 +18,13 @@ class CloudinaryServices:
             folder=folder,
             tags=tags,
         )
+
         result_dict = {
             "url": result["url"],
             "public_id": result["public_id"],
         }
 
         return result_dict
+
+    def delete_image(image):
+        cloudinary.uploader.destroy(image)
