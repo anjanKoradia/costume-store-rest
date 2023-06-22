@@ -13,6 +13,9 @@ class ColorSerializer(serializers.ModelSerializer):
         model = Color
         fields = ["name"]
 
+    def to_representation(self, instance):
+        return instance.name
+
     def create(self, validated_data):
         data = validated_data
         product = self.context["product"]
@@ -27,6 +30,9 @@ class SizeSerializer(serializers.ModelSerializer):
         model = Size
         fields = ["name"]
 
+    def to_representation(self, instance):
+        return instance.name
+
     def create(self, validated_data):
         data = validated_data
         product = self.context["product"]
@@ -39,6 +45,9 @@ class SizeSerializer(serializers.ModelSerializer):
 class ProductImageSerializer(serializers.Serializer):
     image = serializers.ImageField(required=True, write_only=True)
     url = serializers.URLField(read_only=True)
+
+    def to_representation(self, instance):
+        return instance.url
 
     def create(self, validated_data):
         data = validated_data
@@ -63,28 +72,32 @@ class ProductImageSerializer(serializers.Serializer):
         return product
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    size = serializers.ListField(
-        child=serializers.CharField(max_length=20), write_only=True
-    )
-    color = serializers.ListField(
-        child=serializers.CharField(max_length=20), write_only=True
-    )
-    image = serializers.ListField(child=serializers.ImageField(), write_only=True)
-
-    sizes = SizeSerializer(many=True, read_only=True)
-    colors = ColorSerializer(many=True, read_only=True)
-    images = serializers.SerializerMethodField(read_only=True)
+class GetProductSerializer(serializers.ModelSerializer):
+    sizes = SizeSerializer(many=True)
+    colors = ColorSerializer(many=True)
+    product_images = ProductImageSerializer(many=True)
 
     class Meta:
         model = Product
         exclude = ["vendor"]
 
-    def get_images(self, instance):
-        image_urls_list = list(
-            instance.product_images.all().values_list("url", flat=True)
-        )
-        return image_urls_list
+
+class ProductSerializer(serializers.ModelSerializer):
+    sizes = serializers.ListField(
+        child=serializers.CharField(max_length=20), write_only=True
+    )
+    colors = serializers.ListField(
+        child=serializers.CharField(max_length=20), write_only=True
+    )
+    images = serializers.ListField(child=serializers.ImageField(), write_only=True)
+
+    class Meta:
+        model = Product
+        exclude = ["vendor"]
+
+    def to_representation(self, instance):
+        serializer = GetProductSerializer(instance)
+        return serializer.data
 
     def create(self, validated_data):
         data = validated_data
@@ -103,7 +116,7 @@ class ProductSerializer(serializers.ModelSerializer):
                 description=data["description"],
             )
 
-            color_data = list(map(lambda color: {"name": color}, data["color"]))
+            color_data = list(map(lambda color: {"name": color}, data["colors"]))
             color_serializer = ColorSerializer(
                 data=color_data, many=True, context={"product": product}
             )
@@ -112,7 +125,7 @@ class ProductSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError(color_serializer.errors)
 
-            size_data = list(map(lambda size: {"name": size}, data["size"]))
+            size_data = list(map(lambda size: {"name": size}, data["sizes"]))
             size_serializer = SizeSerializer(
                 data=size_data, many=True, context={"product": product}
             )
@@ -121,7 +134,7 @@ class ProductSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError(size_serializer.errors)
 
-            image_data = list(map(lambda img: {"image": img}, data["image"]))
+            image_data = list(map(lambda img: {"image": img}, data["images"]))
             image_serializer = ProductImageSerializer(
                 data=image_data, many=True, context={"product": product, "user": user}
             )
@@ -133,7 +146,7 @@ class ProductSerializer(serializers.ModelSerializer):
         except DatabaseError as e:
             raise ValidationError(
                 {
-                    "message": "Somthing went wrong while storing product details",
+                    "message": "Something went wrong while storing product details",
                     "success": False,
                 }
             )
