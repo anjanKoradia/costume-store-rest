@@ -1,6 +1,7 @@
-from . import views
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
+from . import views
 
 vendor_product_router = DefaultRouter()
 vendor_product_router.register(

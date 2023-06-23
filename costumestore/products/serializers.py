@@ -1,16 +1,28 @@
-from common.models import Color, Size
-from rest_framework import serializers
+from common import models, services
 from products.models import ProductImages
-from django.db.utils import DatabaseError
+from rest_framework import response, serializers
+
 from .models import Product, ProductImages
-from cloudinary.exceptions import BadRequest
-from common.services import CloudinaryServices
-from rest_framework.exceptions import ValidationError
 
 
 class ColorSerializer(serializers.ModelSerializer):
+    """
+        Serializer for the Color model.
+
+        This serializer is responsible for serializing and deserializing Color objects.
+
+        Attributes:
+            model (Color): The Color model class.
+            fields (list): The list of fields to include in the serialized representation.
+
+        Methods: 
+        to_representation(instance): Customizes the serialized representation of Color instances. And return 
+                                     list of colors 
+        create(validated_data): Creates a new Color instance and associates it with a product.
+                                colors object is created else false
+        """
     class Meta:
-        model = Color
+        model = models.Color
         fields = ["name"]
 
     def to_representation(self, instance):
@@ -20,14 +32,28 @@ class ColorSerializer(serializers.ModelSerializer):
         data = validated_data
         product = self.context["product"]
 
-        instance, created = Color.objects.get_or_create(name=data.get("name"))
+        instance, created = models.Color.objects.get_or_create(name=data.get("name"))
         product.colors.add(instance)
-        return product
+        return created
 
 
 class SizeSerializer(serializers.ModelSerializer):
+    """
+        Serializer for the Size model.
+
+        Attributes:
+            Meta (class): Metadata options for the serializer.
+                - model (Model): The Size model associated with the serializer.
+                - fields (list): The fields to include in the serialized representation.
+
+        Methods:
+            to_representation(instance): Converts the instance to a serialized representation. And return list of sizes
+            create(validated_data): Creates a new Size instance and associates it with a product. And return true if
+                                    the size object is created else false
+    """
+
     class Meta:
-        model = Size
+        model = models.Size
         fields = ["name"]
 
     def to_representation(self, instance):
@@ -37,12 +63,24 @@ class SizeSerializer(serializers.ModelSerializer):
         data = validated_data
         product = self.context["product"]
 
-        instance, created = Size.objects.get_or_create(name=data.get("name"))
+        instance, created = models.Size.objects.get_or_create(name=data.get("name"))
         product.sizes.add(instance)
-        return product
+        return created
 
 
 class ProductImageSerializer(serializers.Serializer):
+    """
+        Serializer for handling product image data.
+
+        Attributes:
+            image (serializers.ImageField): The product image field.
+            url (serializers.URLField): The URL field for the image.
+
+        Methods:
+            to_representation(instance): Convert the instance to its representation. And return list of image urls
+            create(validated_data): Create a new product image instance,store images in cloudinary
+    """
+
     image = serializers.ImageField(required=True, write_only=True)
     url = serializers.URLField(read_only=True)
 
@@ -55,7 +93,7 @@ class ProductImageSerializer(serializers.Serializer):
         user = self.context["user"]
 
         try:
-            image = CloudinaryServices.store_image(
+            image = services.CloudinaryServices.store_image(
                 data.get("image"),
                 "Products/" + user.vendor.shop_name + "/" + product.name + "/images",
                 [product.category, product.subcategory],
@@ -66,13 +104,30 @@ class ProductImageSerializer(serializers.Serializer):
                 url=image["url"],
                 public_id=image["public_id"],
             )
-        except BadRequest as e:
-            raise ValidationError("Something went wrong while uploading images.")
-
+        except Exception:
+            return response.Response(
+                {
+                    "message": "Something went wrong while uploading images.",
+                    "success": False,
+                }
+            )
         return product
 
 
 class GetProductSerializer(serializers.ModelSerializer):
+    """
+        Serializer for retrieving product information.
+
+       Attributes:
+            sizes (SizeSerializer): Serializer for sizes associated with the product.
+            colors (ColorSerializer): Serializer for colors associated with the product.
+            product_images (ProductImageSerializer): Serializer for images of the product.
+
+       Meta:
+            model (Product): The model class to be serialized.
+            exclude (List[str]): Fields to be excluded from serialization.
+    """
+
     sizes = SizeSerializer(many=True)
     colors = ColorSerializer(many=True)
     product_images = ProductImageSerializer(many=True)
@@ -83,6 +138,24 @@ class GetProductSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """
+        Serializer for the 'Product' model.
+
+        Attributes:
+            sizes (ListField): List of sizes associated with the product.
+            colors (ListField): List of colors associated with the product.
+            images (ListField): List of images associated with the product.
+
+        Meta:
+            model (Product): The model class to serialize.
+            exclude (list): Fields to exclude from the serialized representation.
+
+        Methods:
+            to_representation(instance): Custom representation of the serialized data. And return list of product data
+            create(validated_data): Create and store a new product instance. And return that product instance
+            update(instance, validated_data): Update an existing product instance and return updated product instance
+    """
+
     sizes = serializers.ListField(
         child=serializers.CharField(max_length=20), write_only=True
     )
@@ -143,14 +216,13 @@ class ProductSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError(size_serializer.errors)
 
-        except DatabaseError as e:
-            raise ValidationError(
+        except Exception:
+            return response.Response(
                 {
                     "message": "Something went wrong while storing product details",
                     "success": False,
                 }
             )
-
         return product
 
     def update(self, instance, validated_data):

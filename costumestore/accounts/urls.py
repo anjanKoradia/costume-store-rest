@@ -1,5 +1,5 @@
-from . import views
 from django.urls import path
+from . import views
 
 urlpatterns = [
     path("vendor/profile/", views.VendorProfile.as_view(), name="vendor_profile"),

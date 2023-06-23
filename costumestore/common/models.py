@@ -1,4 +1,5 @@
 import uuid
+
 from django.db import models
 
 USER_ROLE_CHOICES = (("customer", "Customer"), ("vendor", "Vendor"), ("admin", "Admin"))
@@ -27,6 +28,17 @@ SIZE_CHOICES = (
 
 
 class BaseModel(models.Model):
+    """
+        Abstract base model class. To apply in all models.
+
+        Attributes:
+            id (UUIDField): Primary key field with a unique identifier.
+            created_at (DateTimeField): Field representing the creation timestamp.
+            updated_at (DateTimeField): Field representing the last update timestamp.
+
+        Meta:
+            abstract (bool): Specifies that this is an abstract base model.
+    """
     id = models.UUIDField(
         primary_key=True, unique=True, default=uuid.uuid4, editable=False
     )
@@ -38,6 +50,17 @@ class BaseModel(models.Model):
 
 
 class Color(BaseModel):
+    """
+        Model representing a color.
+
+        Attributes:
+            name (CharField): Field for the color name.
+
+        Meta:
+            db_table (str): The database table name for this model.
+            verbose_name (str): The human-readable name for a single object of this model.
+            verbose_name_plural (str): The human-readable name for multiple objects of this model.
+    """
     name = models.CharField(max_length=20)
 
     class Meta:
@@ -47,6 +70,17 @@ class Color(BaseModel):
 
 
 class Size(BaseModel):
+    """
+        Model representing a size.
+
+        Attributes:
+            name (CharField): Field for the size name.
+
+        Meta:
+            db_table (str): The database table name for this model.
+            verbose_name (str): The human-readable name for a single object of this model.
+            verbose_name_plural (str): The human-readable name for multiple objects of this model.
+    """
     name = models.CharField(max_length=20, choices=SIZE_CHOICES)
 
     class Meta:
@@ -56,6 +90,19 @@ class Size(BaseModel):
 
 
 class Image(BaseModel):
+    """
+        Model representing an image.
+
+        Attributes:
+            url (URLField): Field for the image URL.
+            public_id (CharField): Field for the public identifier of the image.
+            location (CharField): Field for the location of the image.
+
+        Meta:
+            db_table (str): The database table name for this model.
+            verbose_name (str): The human-readable name for a single object of this model.
+            verbose_name_plural (str): The human-readable name for multiple objects of this model.
+    """
     url = models.URLField()
     public_id = models.CharField(max_length=100)
     location = models.CharField(max_length=20, default="Cloudinary")

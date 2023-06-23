@@ -1,15 +1,23 @@
 import uuid
-from .models import Image
-from rest_framework import status
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from authentication.models import User
+from rest_framework import status
 from rest_framework.response import Response
-from django.db.models.signals import post_save, post_delete
-from .services import send_account_activation_email, CloudinaryServices
+from authentication.models import User
+from .models import Image
+from .services import CloudinaryServices, send_account_activation_email
 
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
+    """
+        Signal receiver function to send activation mail after creating a profile
+
+        Args:
+            sender (Model): The model class that sent the signal (User).
+            instance (User): The actual instance of the User model.
+            created (bool): Indicates if the User instance was created or updated.
+    """
     if created:
         try:
             user = User.objects.get(email=instance.email)
@@ -23,9 +31,16 @@ def create_profile(sender, instance, created, **kwargs):
         user.email_token = email_token
         user.save()
 
-        # send_account_activation_email(instance.name,instance.email,email_token)
+        send_account_activation_email(instance.name,instance.email,email_token)
 
 
 @receiver(post_delete, sender=Image)
 def delete_image(sender, instance, **kwargs):
-    CloudinaryServices.delete_image(instance.public_id)
+    """
+        Signal receiver function to delete an image from Cloudinary after Image model is deleted.
+
+        Args:
+            sender (Model): The model class that sent the signal (Image).
+            instance (Image): The actual instance of the Image model.
+    """
+    CloudinaryServices.delete_image(image=instance.public_id)
