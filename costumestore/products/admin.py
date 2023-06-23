@@ -1,10 +1,9 @@
 from django.contrib import admin
-
-from .models import Product, ProductImages
+from .models import Product, ProductImage
 
 
 @admin.register(Product)
-class Product(admin.ModelAdmin):
+class Products(admin.ModelAdmin):
     """
        Admin configuration for the 'Product' model.
 
@@ -14,7 +13,7 @@ class Product(admin.ModelAdmin):
     list_display = ["name", "price", "category", "stock"]
 
 
-@admin.register(ProductImages)
+@admin.register(ProductImage)
 class ProductImages(admin.ModelAdmin):
     """
        Admin configuration for the 'ProductImages' model.

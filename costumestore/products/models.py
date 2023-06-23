@@ -55,7 +55,7 @@ class Product(BaseModel):
         verbose_name_plural = "Products"
 
 
-class ProductImages(Image):
+class ProductImage(Image):
     """_summary_
         A model representing images associated with a product.
 

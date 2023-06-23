@@ -1,8 +1,6 @@
 from common import models, services
-from products.models import ProductImages
 from rest_framework import response, serializers
-
-from .models import Product, ProductImages
+from .models import Product, ProductImage
 
 
 class ColorSerializer(serializers.ModelSerializer):
@@ -99,7 +97,7 @@ class ProductImageSerializer(serializers.Serializer):
                 [product.category, product.subcategory],
             )
 
-            ProductImages.objects.create(
+            ProductImage.objects.create(
                 product=product,
                 url=image["url"],
                 public_id=image["public_id"],
