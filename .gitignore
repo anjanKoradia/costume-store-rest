@@ -17,3 +17,6 @@ venv
 
 /costumestore/cart/migrations
 /costumestore/cart/__pycache__
+
+/costumestore/wishlist/migrations
+/costumestore/wishlist/__pycache__

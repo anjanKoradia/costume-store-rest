@@ -10,34 +10,35 @@ from .serializers import AddressSerializer, VendorProfileSerializer
 
 class UserAddress(APIView):
     """
-        API view for user addresses.
+    API view for user addresses.
 
-        Authentication:
-            - Requires JWT authentication.
+    Authentication:
+        - Requires JWT authentication.
 
-        Permissions:
-            - Requires the user to be authenticated.
+    Permissions:
+        - Requires the user to be authenticated.
 
-        Methods:
-            - GET: Retrieve all addresses associated with the authenticated user.
-            - POST: Create a new address for the authenticated user.
-            - PATCH: Update an existing address of the authenticated user.
+    Methods:
+        - GET: Retrieve all addresses associated with the authenticated user.
+        - POST: Create a new address for the authenticated user.
+        - PATCH: Update an existing address of the authenticated user.
     """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
-            Create a new address for the authenticated user.
+        Create a new address for the authenticated user.
 
-            Args:
-                request (Request): The HTTP request containing the address data.
+        Args:
+            request (Request): The HTTP request containing the address data.
 
-            Returns:
-                Response: The success message indicating if the address was stored successfully.
+        Returns:
+            Response: The success message indicating if the address was stored successfully.
 
-            Raises:
-                Response with 400 status code if the request data is invalid.
+        Raises:
+            Response with 400 status code if the request data is invalid.
         """
         try:
             address = Address.objects.filter(user=request.user)
@@ -52,16 +53,16 @@ class UserAddress(APIView):
 
     def post(self, request):
         """
-            Create a new address for the authenticated user.
+        Create a new address for the authenticated user.
 
-            Args:
-                request (Request): The HTTP request containing the address data.
+        Args:
+            request (Request): The HTTP request containing the address data.
 
-            Returns:
-                Response: The success message indicating if the address was stored successfully.
+        Returns:
+            Response: The success message indicating if the address was stored successfully.
 
-            Raises:
-                Response with 400 status code if the request data is invalid.
+        Raises:
+            Response with 400 status code if the request data is invalid.
         """
         serializer = AddressSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -80,17 +81,17 @@ class UserAddress(APIView):
 
     def patch(self, request):
         """
-            Update an existing address of the authenticated user.
+        Update an existing address of the authenticated user.
 
-            Args:
-                request (Request): The HTTP request containing the updated address data.
+        Args:
+            request (Request): The HTTP request containing the updated address data.
 
-            Returns:
-                Response: The updated serialized address data.
+        Returns:
+            Response: The updated serialized address data.
 
-            Raises:
-                Response with 404 status code if the address is not found.
-                Response with 400 status code if the request data is invalid.
+        Raises:
+            Response with 404 status code if the address is not found.
+            Response with 400 status code if the request data is invalid.
         """
         try:
             address = Address.objects.get(
@@ -107,38 +108,39 @@ class UserAddress(APIView):
             serializer.save()
             return Response(
                 serializer.data,
-                {"message": "Address updated successfully", "success": True}
+                {"message": "Address updated successfully", "success": True},
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VendorProfile(APIView):
     """
-        API view for vendor profile.
+    API view for vendor profile.
 
-        Authentication:
-            - Requires JWT authentication.
+    Authentication:
+        - Requires JWT authentication.
 
-        Permissions:
-            - Requires the user to be authenticated.
-            - Requires the user to have the role of "vendor".
+    Permissions:
+        - Requires the user to be authenticated.
+        - Requires the user to have the role of "vendor".
 
-        Methods:
-            - GET: Retrieve the profile of the authenticated vendor.
-            - POST: Create a new vendor profile for the authenticated user.
+    Methods:
+        - GET: Retrieve the profile of the authenticated vendor.
+        - POST: Create a new vendor profile for the authenticated user.
     """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsVendor]
 
     def get(self, request):
         """
-            Retrieve the profile of the authenticated vendor.
+        Retrieve the profile of the authenticated vendor.
 
-            Returns:
-                Response: The serialized vendor profile data.
+        Returns:
+            Response: The serialized vendor profile data.
 
-            Raises:
-                Response with 404 status code if the vendor profile does not exist.
+        Raises:
+            Response with 404 status code if the vendor profile does not exist.
         """
         try:
             vendor = Vendor.objects.get(user=request.user)
@@ -153,20 +155,21 @@ class VendorProfile(APIView):
 
     def post(self, request):
         """
-            Create a new vendor profile for the authenticated user.
+        Create a new vendor profile for the authenticated user.
 
-            Args:
-                request (Request): The HTTP request containing the vendor profile data.
+        Args:
+            request (Request): The HTTP request containing the vendor profile data.
 
-            Returns:
-                Response: The success message indicating if the vendor profile was created successfully.
+        Returns:
+            Response: The success message indicating if the vendor profile was created successfully.
 
-            Raises:
-                Response with 400 status code if the request data is invalid.
+        Raises:
+            Response with 400 status code if the request data is invalid.
         """
         serializer = VendorProfileSerializer(
             data=request.data, context={"request": request}
         )
+
         if serializer.is_valid():
             created = serializer.save()
             if created:

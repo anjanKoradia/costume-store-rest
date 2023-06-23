@@ -5,20 +5,21 @@ from .models import Product, ProductImage
 
 class ColorSerializer(serializers.ModelSerializer):
     """
-        Serializer for the Color model.
+    Serializer for the Color model.
 
-        This serializer is responsible for serializing and deserializing Color objects.
+    This serializer is responsible for serializing and deserializing Color objects.
 
-        Attributes:
-            model (Color): The Color model class.
-            fields (list): The list of fields to include in the serialized representation.
+    Attributes:
+        model (Color): The Color model class.
+        fields (list): The list of fields to include in the serialized representation.
 
-        Methods: 
-        to_representation(instance): Customizes the serialized representation of Color instances. And return 
-                                     list of colors 
-        create(validated_data): Creates a new Color instance and associates it with a product.
-                                colors object is created else false
-        """
+    Methods:
+    to_representation(instance): Customizes the serialized representation of Color instances. And return
+                                 list of colors
+    create(validated_data): Creates a new Color instance and associates it with a product.
+                            colors object is created else false
+    """
+
     class Meta:
         model = models.Color
         fields = ["name"]
@@ -37,17 +38,17 @@ class ColorSerializer(serializers.ModelSerializer):
 
 class SizeSerializer(serializers.ModelSerializer):
     """
-        Serializer for the Size model.
+    Serializer for the Size model.
 
-        Attributes:
-            Meta (class): Metadata options for the serializer.
-                - model (Model): The Size model associated with the serializer.
-                - fields (list): The fields to include in the serialized representation.
+    Attributes:
+        Meta (class): Metadata options for the serializer.
+            - model (Model): The Size model associated with the serializer.
+            - fields (list): The fields to include in the serialized representation.
 
-        Methods:
-            to_representation(instance): Converts the instance to a serialized representation. And return list of sizes
-            create(validated_data): Creates a new Size instance and associates it with a product. And return true if
-                                    the size object is created else false
+    Methods:
+        to_representation(instance): Converts the instance to a serialized representation. And return list of sizes
+        create(validated_data): Creates a new Size instance and associates it with a product. And return true if
+                                the size object is created else false
     """
 
     class Meta:
@@ -68,15 +69,15 @@ class SizeSerializer(serializers.ModelSerializer):
 
 class ProductImageSerializer(serializers.Serializer):
     """
-        Serializer for handling product image data.
+    Serializer for handling product image data.
 
-        Attributes:
-            image (serializers.ImageField): The product image field.
-            url (serializers.URLField): The URL field for the image.
+    Attributes:
+        image (serializers.ImageField): The product image field.
+        url (serializers.URLField): The URL field for the image.
 
-        Methods:
-            to_representation(instance): Convert the instance to its representation. And return list of image urls
-            create(validated_data): Create a new product image instance,store images in cloudinary
+    Methods:
+        to_representation(instance): Convert the instance to its representation. And return list of image urls
+        create(validated_data): Create a new product image instance,store images in cloudinary
     """
 
     image = serializers.ImageField(required=True, write_only=True)
@@ -114,16 +115,16 @@ class ProductImageSerializer(serializers.Serializer):
 
 class GetProductSerializer(serializers.ModelSerializer):
     """
-        Serializer for retrieving product information.
+     Serializer for retrieving product information.
 
-       Attributes:
-            sizes (SizeSerializer): Serializer for sizes associated with the product.
-            colors (ColorSerializer): Serializer for colors associated with the product.
-            product_images (ProductImageSerializer): Serializer for images of the product.
+    Attributes:
+         sizes (SizeSerializer): Serializer for sizes associated with the product.
+         colors (ColorSerializer): Serializer for colors associated with the product.
+         product_images (ProductImageSerializer): Serializer for images of the product.
 
-       Meta:
-            model (Product): The model class to be serialized.
-            exclude (List[str]): Fields to be excluded from serialization.
+    Meta:
+         model (Product): The model class to be serialized.
+         exclude (List[str]): Fields to be excluded from serialization.
     """
 
     sizes = SizeSerializer(many=True)
@@ -137,21 +138,21 @@ class GetProductSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     """
-        Serializer for the 'Product' model.
+    Serializer for the 'Product' model.
 
-        Attributes:
-            sizes (ListField): List of sizes associated with the product.
-            colors (ListField): List of colors associated with the product.
-            images (ListField): List of images associated with the product.
+    Attributes:
+        sizes (ListField): List of sizes associated with the product.
+        colors (ListField): List of colors associated with the product.
+        images (ListField): List of images associated with the product.
 
-        Meta:
-            model (Product): The model class to serialize.
-            exclude (list): Fields to exclude from the serialized representation.
+    Meta:
+        model (Product): The model class to serialize.
+        exclude (list): Fields to exclude from the serialized representation.
 
-        Methods:
-            to_representation(instance): Custom representation of the serialized data. And return list of product data
-            create(validated_data): Create and store a new product instance. And return that product instance
-            update(instance, validated_data): Update an existing product instance and return updated product instance
+    Methods:
+        to_representation(instance): Custom representation of the serialized data. And return list of product data
+        create(validated_data): Create and store a new product instance. And return that product instance
+        update(instance, validated_data): Update an existing product instance and return updated product instance
     """
 
     sizes = serializers.ListField(
@@ -213,7 +214,6 @@ class ProductSerializer(serializers.ModelSerializer):
                 image_serializer.save()
             else:
                 raise serializers.ValidationError(size_serializer.errors)
-
         except Exception:
             return response.Response(
                 {

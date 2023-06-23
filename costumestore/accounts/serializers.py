@@ -5,17 +5,18 @@ from .models import Address, Vendor
 
 class VendorProfileSerializer(serializers.ModelSerializer):
     """
-        Serializer for vendor profile creation.
+    Serializer for vendor profile creation.
 
-        Attributes:
-            aadhar_image (ImageField): The Aadhar image of the vendor.
-            pancard_image (ImageField): The PAN card image of the vendor.
-            business_license (ImageField): The business license image of the vendor.
+    Attributes:
+        aadhar_image (ImageField): The Aadhar image of the vendor.
+        pancard_image (ImageField): The PAN card image of the vendor.
+        business_license (ImageField): The business license image of the vendor.
 
-        Meta:
-            model (Vendor): The model associated with the serializer.
-            exclude (list): The list of fields to exclude from serialization.
+    Meta:
+        model (Vendor): The model associated with the serializer.
+        exclude (list): The list of fields to exclude from serialization.
     """
+
     aadhar_image = serializers.ImageField(
         required=True, allow_empty_file=False, allow_null=False
     )
@@ -32,34 +33,38 @@ class VendorProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-             Create a vendor profile.
+        Create a vendor profile.
 
-             Args:
-                 validated_data (dict): The validated data for creating the vendor profile.
+        Args:
+            validated_data (dict): The validated data for creating the vendor profile.
 
-             Returns:
-                 bool: The success status indicating if the vendor profile was created.
+        Returns:
+            bool: The success status indicating if the vendor profile was created.
 
-             Raises:
-                 ValidationError: If there is an error while uploading the images or creating the vendor profile.
-         """
+        Raises:
+            ValidationError: If there is an error while uploading the images or creating the vendor profile.
+        """
         data = validated_data
-
         try:
             aadhar_image_url = CloudinaryServices.store_image(
-                data["aadhar_image"], data["shop_name"], "/documents"
+                self, image=data["aadhar_image"], folder=data["shop_name"]
             )
             pancard_image_url = CloudinaryServices.store_image(
-                data["pancard_image"], data["shop_name"], "/documents"
+                self, image=data["pancard_image"], folder=data["shop_name"]
             )
             business_license_url = CloudinaryServices.store_image(
-                data["business_license"], data["shop_name"], "/documents"
+                self, image=data["business_license"], folder=data["shop_name"]
             )
         except Exception:
-            return response.Response({"message":"Something went wrong while uploading images.", "success": False})
+            return response.Response(
+                {
+                    "message": "Something went wrong while uploading images.",
+                    "success": False,
+                }
+            )
 
         try:
-            Vendor.objects.get_or_create(
+            vendor, created = Vendor.objects.get_or_create(
                 user=self.context["request"].user,
                 defaults={
                     "shop_name": data["shop_name"],
@@ -79,38 +84,38 @@ class VendorProfileSerializer(serializers.ModelSerializer):
                     "success": False,
                 }
             )
-
-        return data
+        return created
 
 
 class AddressSerializer(serializers.ModelSerializer):
     """
-        Serializer for address creation.
+    Serializer for address creation.
 
-        Meta:
-            model (Address): The model associated with the serializer.
-            exclude (list): The list of fields to exclude from serialization.
+    Meta:
+        model (Address): The model associated with the serializer.
+        exclude (list): The list of fields to exclude from serialization.
     """
+
     class Meta:
         model = Address
         exclude = ["user"]
 
     def create(self, validated_data):
         """
-            Create an address.
+        Create an address.
 
-            Args:
-                validated_data (dict): The validated data for creating the address.
+        Args:
+            validated_data (dict): The validated data for creating the address.
 
-            Returns:
-                bool: The success status indicating if the address was created.
+        Returns:
+            bool: The success status indicating if the address was created.
 
-            Raises:
-                ValidationError: If there is an error while creating the address.
+        Raises:
+            ValidationError: If there is an error while creating the address.
         """
         data = validated_data
         try:
-            Address.objects.get_or_create(
+            address, created = Address.objects.get_or_create(
                 user=self.context["request"].user,
                 type=data["type"],
                 defaults={
@@ -129,4 +134,4 @@ class AddressSerializer(serializers.ModelSerializer):
                 }
             )
 
-        return data
+        return created
