@@ -129,9 +129,9 @@ class AddressSerializer(serializers.ModelSerializer):
         except Exception:
             return response.Response(
                 {
-                    "message": "Somthing went wrong while storing address",
+                    "message": "Something went wrong while storing address",
                     "success": False,
                 }
             )
 
-        return created
+        return address

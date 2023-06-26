@@ -20,3 +20,6 @@ venv
 
 /costumestore/wishlist/migrations
 /costumestore/wishlist/__pycache__
+
+/costumestore/orders/migrations
+/costumestore/orders/__pycache__
