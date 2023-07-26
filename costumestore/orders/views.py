@@ -3,6 +3,7 @@ from rest_framework_simplejwt import authentication
 from common.permissions import IsCustomer, IsVendor
 from .serializers import BillingDetailsSerializer, OrderItemsSerializer
 from .models import BillingDetail, OrderItem
+from rest_framework.pagination import PageNumberPagination
 
 
 class CustomerOrderView(generics.ListCreateAPIView):

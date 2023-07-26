@@ -18,7 +18,7 @@ class VendorProfileSerializer(serializers.ModelSerializer):
     """
 
     aadhar_image = serializers.ImageField(
-        required=True, allow_empty_file=False, allow_null=False
+        required=True, allow_empty_file=False, allow_null=False,
     )
     pancard_image = serializers.ImageField(
         required=True, allow_empty_file=False, allow_null=False

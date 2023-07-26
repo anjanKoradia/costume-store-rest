@@ -2,7 +2,7 @@ from common.permissions import IsVendor
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.views import APIView, View
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Address, Vendor
 from .serializers import AddressSerializer, VendorProfileSerializer
@@ -41,7 +41,7 @@ class UserAddress(APIView):
             Response with 400 status code if the request data is invalid.
         """
         try:
-            address = Address.objects.filter(user=request.user)
+            address = Address.objects.filter(user=request.user)  
             serializer = AddressSerializer(address, many=True)
         except Exception:
             return Response(

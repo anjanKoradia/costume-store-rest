@@ -11,7 +11,7 @@ from .services import CloudinaryServices, send_account_activation_email
 
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def create_profile(instance, created, **kwargs):
     """
     Signal receiver function to send activation mail after creating a profile
 
